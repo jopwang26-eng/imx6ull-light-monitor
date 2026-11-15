@@ -1,0 +1,29 @@
+/* 继承已验证的 KEY0 及原有 I2C 配置。 */
+#include "imx6ull-alientek-emmc-lightkey-test.dts"
+
+/ {
+    lightbeep-test {
+        compatible = "lightdemo,beep";
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_beep>;
+        beep-gpios = <&gpio5 1 GPIO_ACTIVE_LOW>;
+        status = "okay";
+    };
+};
+
+/* 当前实际板级 /leds 仅含 beep，停用后释放 GPIO 和 pinctrl。 */
+&{/leds} {
+    status = "disabled";
+};
+
+/*
+ * GPIO 控制器通过输入采样寄存器 PSR 回读输出引脚。
+ * 0x40000000 由本 BSP 的 pinctrl 解析为 mux 的 SION 位，
+ * 强制保持输入通路，用于验证并支持输出电平回读。
+ * 低位 0x17059 沿用原引脚电气配置；仅此测试 DT 生效。
+ */
+&pinctrl_beep {
+    fsl,pins = <
+        MX6ULL_PAD_SNVS_TAMPER1__GPIO5_IO01 0x40017059
+    >;
+};

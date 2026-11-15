@@ -1,0 +1,116 @@
+; Temporary TFTP + NFS boot for the light_monitor project.
+; Start from an existing Tera Term serial session at the U-Boot prompt.
+; Uses the lightbeep test DTB. Does not run saveenv or change bootcmd.
+
+testlink
+if result<>2 then
+    messagebox 'Open the board serial connection in Tera Term first.' 'lightbeep boot'
+    end
+endif
+
+; Buffer incoming data while sending characters slowly.
+setsync 1
+timeout = 15
+mtimeout = 0
+stage = 'waiting for the U-Boot prompt'
+flushrecv
+send #13
+wait '=>'
+if result<>1 goto failed
+
+stage = 'setting ethaddr'
+txcmd = 'setenv ethaddr 02:12:34:56:78:9A'
+call send_slow
+call expect_prompt
+
+stage = 'setting board IP'
+txcmd = 'setenv ipaddr 192.168.50.131'
+call send_slow
+call expect_prompt
+
+stage = 'setting TFTP server IP'
+txcmd = 'setenv serverip 192.168.50.130'
+call send_slow
+call expect_prompt
+
+stage = 'setting netmask'
+txcmd = 'setenv netmask 255.255.255.0'
+call send_slow
+call expect_prompt
+
+stage = 'verifying board IP'
+txcmd = 'printenv ipaddr'
+call send_slow
+timeout = 15
+wait 'ipaddr=192.168.50.131' 'Unknown command' 'not defined' '=>'
+if result<>1 goto failed
+call expect_prompt
+
+stage = 'verifying server IP'
+txcmd = 'printenv serverip'
+call send_slow
+timeout = 15
+wait 'serverip=192.168.50.130' 'Unknown command' 'not defined' '=>'
+if result<>1 goto failed
+call expect_prompt
+
+stage = 'pinging the Ubuntu server'
+txcmd = 'ping 192.168.50.130'
+call send_slow
+timeout = 45
+wait 'host 192.168.50.130 is alive' 'is not alive' 'Unknown command' '=>'
+if result<>1 goto failed
+call expect_prompt
+
+stage = 'downloading zImage'
+txcmd = 'tftp 80800000 zImage'
+call send_slow
+call expect_tftp
+
+stage = 'downloading the lightbeep test DTB'
+txcmd = 'tftp 83000000 imx6ull-alientek-emmc-lightbeep-test.dtb'
+call send_slow
+call expect_tftp
+
+stage = 'setting NFS bootargs'
+txcmd = "setenv bootargs 'console=ttymxc0,115200 root=/dev/nfs rw nfsroot=192.168.50.130:/home/jopwang/linux/nfs/rootfs,vers=3,tcp ip=192.168.50.131:192.168.50.130::255.255.255.0::eth0:off'"
+call send_slow
+call expect_prompt
+
+; Restore normal receive mode before the kernel emits its boot log.
+stage = 'starting Linux'
+txcmd = 'bootz 80800000 - 83000000'
+call send_slow
+setsync 0
+end
+
+:send_slow
+; Send one ASCII character at a time to reduce UART receive overruns.
+strlen txcmd
+txlen = result
+for txidx 1 txlen
+    strcopy txcmd txidx 1 txchar
+    send txchar
+    mpause 20
+next
+send #13
+return
+
+:expect_prompt
+timeout = 15
+wait '=>' 'Unknown command' '## Error' "Can't overwrite" 'Error:'
+if result<>1 goto failed
+return
+
+:expect_tftp
+timeout = 120
+wait 'Bytes transferred =' 'Retry count exceeded' 'TFTP error' 'File not found' 'Unknown command' '=>'
+if result<>1 goto failed
+call expect_prompt
+return
+
+:failed
+setsync 0
+sprintf2 failure 'Stopped while %s. Check the serial log.' stage
+messagebox failure 'lightbeep boot stopped'
+end

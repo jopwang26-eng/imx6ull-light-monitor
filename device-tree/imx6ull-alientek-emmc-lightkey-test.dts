@@ -1,0 +1,30 @@
+#include <dt-bindings/gpio/gpio.h>
+#include "imx6ull-alientek-emmc.dts"
+
+/ {
+    lightkey-test {
+        compatible = "lightdemo,key0";
+
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_lightkey>;
+
+        key-gpios = <&gpio1 18 GPIO_ACTIVE_LOW>;
+
+        status = "okay";
+    };
+};
+
+/* 仅在测试设备树中停用原有按键节点 */
+&gpio_keys {
+    status = "disabled";
+};
+
+&iomuxc {
+    imx6ul-evk {
+        pinctrl_lightkey: lightkeygrp {
+            fsl,pins = <
+                MX6UL_PAD_UART1_CTS_B__GPIO1_IO18 0x80000000
+            >;
+        };
+    };
+};
