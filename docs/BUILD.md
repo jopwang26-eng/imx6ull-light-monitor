@@ -1,5 +1,7 @@
 # 构建与运行
 
+完整的文件安装、备份、NFS/TFTP对应关系、U-Boot启动、板端验收及回滚步骤见[部署指南](DEPLOY.md)。本页侧重构建命令和原生测试。
+
 ## 环境与目录
 
 已验证环境为 i.MX6ULL、厂商 Linux 4.1.15 BSP、Linaro GCC 4.9.4 ARM hard-float工具链。仓库不包含完整BSP、工具链、zImage或NFS根文件系统；主机内核版本不是目标板模块版本。

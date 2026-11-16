@@ -14,6 +14,7 @@
 # Only the selected documentation is public.
 /docs/*
 !/docs/BUILD.md
+!/docs/DEPLOY.md
 !/docs/HARDWARE.md
 !/docs/VALIDATION.md
 !/docs/PUBLISHING.md

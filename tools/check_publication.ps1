@@ -8,7 +8,7 @@ if (-not $paths.Count) { throw 'No staged files to audit' }
 
 $allowedRoot = '^(?:\.gitignore|\.gitattributes|README\.md|GLOSSARY\.md|Makefile)$'
 $allowedDirectory = '^(?:apps/light_monitor|drivers/(?:lightkey|lightap3216c|lightbeep)|device-tree|tools/(?:finalization|i2c-nack-test)|docs/validation)/'
-$allowedExtra = '^(?:tools/(?:check_publication\.ps1|boot_lightkey\.ttl|boot_lightbeep\.ttl)|docs/(?:BUILD|HARDWARE|VALIDATION|PUBLISHING)\.md)$'
+$allowedExtra = '^(?:tools/(?:check_publication\.ps1|boot_lightkey\.ttl|boot_lightbeep\.ttl)|docs/(?:BUILD|DEPLOY|HARDWARE|VALIDATION|PUBLISHING)\.md)$'
 $forbidden = '(?i)(?:^|/)(?:\.codex|\.agents|\.aws|\.ssh|\.git|\.env(?:\..*)?|auth\.json|credentials(?:\..*)?|secrets(?:\..*)?|id_rsa[^/]*|id_ed25519[^/]*)(?:/|$)|\.(?:pem|key|p12|pfx|jks|keystore|ko|o|so|a|dtb|dtbo|zip|7z|csv|log|tar|gz)$'
 $patterns = [ordered]@{
     ApiToken = '(?i)(?:sk-(?:proj-|svcacct-)?[a-z0-9_-]{16,}|gh[pousr]_[a-z0-9]{20,}|github_pat_[a-z0-9_]{20,}|AKIA[0-9A-Z]{16})'

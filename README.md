@@ -36,7 +36,7 @@ make -C "$KERNEL_DIR" M="$PWD" ARCH=arm CROSS_COMPILE="$CROSS_COMPILE" modules
 make -C apps/light_monitor CROSS_COMPILE="$CROSS_COMPILE" LDFLAGS=-static
 ```
 
-按[构建与运行说明](docs/BUILD.md)准备设备树与运行文件。板端Linux启动后：
+按[构建与运行说明](docs/BUILD.md)编译，再按[完整部署指南](docs/DEPLOY.md)完成文件清单、备份安装、TFTP/NFS启动、板端验收及回滚准备。板端Linux启动后：
 
 ```sh
 cd /opt/light_monitor
